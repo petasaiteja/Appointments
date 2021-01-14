@@ -3,7 +3,7 @@ Book a calender based on availability  <br /> <br />
 
 
 # Setup and instructions  <br />
-1) Open terminal and run npm install to  installing dependencies <br />
+1) Open terminal , goto project folder and  run npm install to  installing dependencies <br />
 2) create .evn file and add the  below firestore configuration <br />
     #express server config <br /><br />
 
@@ -21,7 +21,7 @@ Book a calender based on availability  <br /> <br />
     MESSAGING_SENDER_ID= <br />
     APP_ID= <br /><br />
 
-3) Configure available timings in Controllers/availability.js <br />
+3) Configure available timings in the folder Controllers/availability.js <br />
 4) Run npm start <br /><br />
 
 # API Details <br />
