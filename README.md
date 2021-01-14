@@ -2,7 +2,7 @@
 Book a calender based on availability  <br /> <br />
 
 
-#Setup and instructions  <br />
+# Setup and instructions  <br />
 1) Open terminal and run npm install to  installing dependencies <br />
 2) create .evn file and add the  below firestore configuration <br />
     #express server config <br /><br />
@@ -24,7 +24,7 @@ Book a calender based on availability  <br /> <br />
 3) Configure available timings in Controllers/availability.js <br />
 4) Run npm start <br /><br />
 
-#API Details <br />
+# API Details <br />
   1) Create Appointment <br />
   Endpoint : http://localhost:8080/api/slot <br />
   Method : POST <br />
