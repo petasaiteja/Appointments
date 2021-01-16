@@ -4,6 +4,7 @@ const firebase = require('../db');
 const Slots = require('../models/slots');
 const availability = require('./availability');
 const firestore = firebase.firestore();
+const moment = require('moment-timezone');
 
 function parseTime(s) {
     var c = s.split(':');
@@ -76,6 +77,9 @@ const addSlot = async (req, res, next) => {
         if (eventMinutes == 0) {
             eventMinutes = eventMinutes+"0"
         }
+        if (eventHours.toString().length == 1) {
+            eventHours = "0"+eventHours
+        }
         let eventString = eventHours+":"+eventMinutes;
         if (eventString < startTime || eventString > endTime) {
             return res.send({"status" : 403, "message" : "User is not avaiable during the given time"});
@@ -84,7 +88,6 @@ const addSlot = async (req, res, next) => {
         let newSlots = [tempTime]
         // fetch all the possible slots for the user wrt start and endtime
         var availableSlots = calculate_time_slot( start_time, end_time, duration ); 
-        console.log(availableSlots);
         // fetch all the booked slots
         var existingData = await firestore.collection('slots').where('date', '==', dateString).get();
         let existingSlots = []
@@ -98,6 +101,16 @@ const addSlot = async (req, res, next) => {
         }) 
         while (eventDuration > duration) {
             tempTime = addTimes('0:'+ duration, tempTime);
+            let tempTimeSplit = tempTime.split(":");
+            let tempTimeHrs = tempTimeSplit[0]
+            let tempTimeMin = tempTimeSplit[1]
+            if (tempTimeHrs.length == 1) {
+                tempTimeHrs = "0"+tempTimeHrs
+            }
+            if (tempTimeMin.length == 1) {
+                tempTimeMin = tempTimeMin+"0"
+            }
+            tempTime = tempTimeHrs+":"+tempTimeMin
             newSlots.push(tempTime)
             eventDuration = duration-eventDuration
         }
@@ -108,11 +121,10 @@ const addSlot = async (req, res, next) => {
         }
         let payload = {
             "date" : dateString,
-            "timeStamp" : eventTime,
+            "timeStamp" : moment.tz(eventTime , timeZone).format(),
             "duration" : tempEventDuration,
             "slotsBooked" : newSlots
         }
-        console.log(payload);
         await firestore.collection('slots').doc().set(payload);
         return res.send({"status" : 200,  "message" : "Successfully blocked the calendar"});
     } catch (error) {
@@ -149,7 +161,6 @@ const getSlots = async (req, res, next) => {
 
 const getAvailableSlots = async (req, res, next) => {
     try {
-        console.log(req.query);
         let startTime = availability.startTime;
         let endTime = availability.endTime; 
         let duration = availability.duration;
@@ -177,7 +188,7 @@ const getAvailableSlots = async (req, res, next) => {
             tempDate.setHours(hr);
             tempDate.setMinutes(min);
             tempDate.setSeconds(0);
-            const convertedDate = convertTZ(tempDate , timeZone); 
+            const convertedDate = moment.tz(tempDate , timeZone).format(); 
             return convertedDate;
         })
         res.status(200).send({"status" : 200, "data" : difference});
@@ -191,5 +202,4 @@ const getAvailableSlots = async (req, res, next) => {
 module.exports = {
     addSlot,
     getSlots,
-    getAvailableSlots
-}
+    getAvailableSlots}
